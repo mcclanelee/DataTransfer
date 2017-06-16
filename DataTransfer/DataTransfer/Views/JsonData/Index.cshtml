@@ -1,0 +1,271 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.js"></script>
+</head>
+<body>
+    <div> 
+        <button id="btnone">jsonresult方式获取json数据</button>
+        <p id="dataone"></p>
+    </div><hr />
+
+    <div>
+        <button id="btntwo">contentresult方式获取json数据</button>
+        <p id="datatwo"></p>
+    </div><hr />
+
+   <div>
+       <button id="btnthree">从json文件获取</button>
+       <p id="datathree"></p>
+   </div><hr />
+
+   <div>
+       <button id="btnfour">传送基本数据类型</button>
+   </div><hr />
+
+    <div>
+        <button id="btnfive">传送单个对象</button>
+    </div><hr />
+
+    <div>
+        <button id="btnsix">传送多个对象</button>
+    </div><hr />
+
+    <div>
+        <button id="btnseven">传送对象集合</button>
+    </div><hr />
+
+    <div>
+        <button id="btneight">传送json数组</button>
+    </div><hr />
+
+    <div>
+        <button id="btnnine">传送json数组Two</button>
+    </div><hr />
+<!---------------------------scripts------------------------------------->
+    
+    <script>
+    $(document).ready(function () {
+        $('#btnone').click(function () {
+            $.ajax({
+                type: 'get',
+                url: '/jsondata/getjson',
+                dataType: 'json',
+                success: function (data) {
+                    $('#dataone').empty();//clear content of #dataone
+                    $('#dataone').html("userName:" + data.userName + "<br/>" + "Age:" + data.age);
+                    //alert(data.userName);
+                }
+            });
+        });
+
+        $('#btnthree').click(function () {
+            $.ajax({
+                type:'post',
+                url: '/jsondata/getjsonfile',
+                dataType: 'json',
+                success: function (data) {
+                    if (!data)
+                        alert("null");                   
+                    var str = data ;
+                    var sitearr = "";
+                    //alert("aa");
+                    $.each(str.sites, function (i,item) {//遍历json数组
+                        sitearr += item.Name + "<br/>";
+                    });
+                    
+                    $('#datathree').html("Name:" + sitearr);
+                    alert("success");
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+            //alert("aaa");
+        });
+        
+        $("#btn").click(function () {
+            $.ajax({
+                type: 'post',
+                url: '/jsondata/getjsonfile',
+                success: function (data) {
+                    var str = eval("(" + data + ")");
+                    var sitearr = "";
+                    var len = str.sites.length;
+                    for (var i = 0; i < len; i++) {
+                        sitearr += str.sites[i].Name + "<br />";
+                    }
+                    $("#datathree").html(sitearr);
+                }
+            });
+        });
+       
+        $('#btnfour').click(function () {
+            var obj = {
+                parm1: 100,
+                parm2: "我是string",
+                parm3: true,
+                parm4: 1.23,
+                parm5: 9.999999
+            };
+            $.getJSON('/jsondata/SimpleBaseData', obj, function (data) {
+                //var jsonobj = JSON.parse(data);
+                //var str = eval("(" + data + ")");
+                //alert(str);
+                var str = "";
+                $.each(data, function (i, item) {
+                    str += item+" ";
+                });
+                alert(str);
+            });
+        });
+
+        $('#btnfive').click(function () {
+            var obj = {
+                UserName: '张三',
+                UserPassWord: '不告诉你',
+                UserSex: '男',
+                UserPhone: '138888888888'
+            };
+            $.getJSON('/jsondata/GetSingleObject', obj, function (data) {
+                //var jsonobj = JSON.parse(data);
+                //alert(jsonobj.UserName);
+                var str = eval("(" + data + ")");
+                var message = "";
+                $.each(str, function (i, item) {
+                    message+=item+"\n"
+                });
+                alert(message);
+            });
+        });
+    });
+    </script>
+
+    <script>
+        $(function () {
+            $('#btntwo').click(function () {
+                $.ajax({
+                    type:'post',
+                    url: '/jsondata/getjsondata',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#datatwo').empty();
+                        var userName = data.userName;
+                        var age = data.age;
+                        $('#datatwo').html("userName:" + userName + "<br/>" + "Age:" + age);
+                        //alert(userName);
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            });
+          
+            $('#btnsix').click(function () {
+                var userinfoObj = {
+                    UserName: '张三',
+                    UserPassWord: '不告诉你',
+                    UserSex: '男',
+                    UserPhone: '138888888888'
+                };
+                var addressObj = {
+                    Country: '中国',
+                    Province: '江西',
+                    City: '南昌',
+                    Street: '红谷滩新区XX路XX号'
+                };
+                $.ajax({
+                    url: '/jsondata/GetTwoObject',
+                    type: 'post',//换成 get 无效
+                    contentType: 'application/json',//多对象传送这个很重要
+                    data: JSON.stringify({
+                        userinfo: userinfoObj,
+                        address: addressObj
+                    }),
+                    success: function (data) {
+                        alert("不使用ViewModel:" + data);
+                    }
+                });
+            });
+
+            $('#btnseven').click(function () {
+                var userList = [];
+                for (var i = 0; i < 5; i++) {
+                    userList.push({ UserName: '姓名' + i, UserPassWord: '密码' + i, UserSex: '性别' + i, UserPhone: '电话' + i });
+                }
+                var str = JSON.stringify(userList);
+                $.ajax({
+                    url: '/jsondata/GetUserList',
+                    type: 'post',//改成 get 方式后无法获取
+                    contentType: 'application/json',
+                    data: str,
+                    success: function (data) {
+                        var str = JSON.parse(data);
+                        var message = "";
+                        $.each(str, function (i, item) {
+                            message += item.UserName + " " + item.UserPassword + " " + item.UserSex + " " + item.UserPhone + "\n";
+                        });
+                        alert(message);
+                    }
+                });
+            });
+
+            $('#btneight').click(function () {
+                var txt = {
+                    "employees": [
+                    { "firstName": "John", "lastName": "Doe" },
+                    { "firstName": "Anna", "lastName": "Smith" },
+                    { "firstName": "Peter", "lastName": "Jones" }
+                    ]
+                }
+                var str = JSON.stringify(txt);
+                $.ajax({
+                    url: '/jsondata/GetJsonArr',
+                    type: 'post',//改成 get 方式后无法获取
+                    contentType: 'application/json',
+                    data: str,
+                    success: function (data) {                     
+                        alert(data);
+                    }
+                });
+                //var str = JSON.stringify(txt);
+                //alert(str);
+            });
+
+            $('#btnnine').click(function () {
+                var txt = {
+                    "employees": [
+                    { "firstName": "John", "lastName": "Doe" },
+                    { "firstName": "Anna", "lastName": "Smith" },
+                    { "firstName": "Peter", "lastName": "Jones" }
+                    ]
+                }
+                var str = JSON.stringify(txt);
+                $.ajax({
+                    url: '/jsondata/GetJsonArrTwo',
+                    type: 'post',//改成 get 方式后无法获取
+                    contentType: 'application/json',
+                    data: str,
+                    success: function (data) {
+                        alert(data);
+                    }
+                });
+                //var str = JSON.stringify(txt);
+                //alert(str);
+            });
+        });
+    </script>
+
+
+
+</body>
+</html>

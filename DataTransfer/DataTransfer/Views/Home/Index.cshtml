@@ -1,0 +1,111 @@
+﻿
+
+<h2>Home Page</h2>
+
+<div>
+    <button id="btn">byQueryString</button>
+</div>
+<div>
+    <button id="btn1">byRouteData</button>
+</div>
+<div>
+    <button id="btn2">byRouteData</button>
+</div>
+<hr />
+<div>
+    <span>by request to access data</span>
+    <form action="/home/getvaluefromform" method="post">
+        <span>username:</span>
+        <input type="text" name="username" />
+        <span>age:</span>
+        <input type="text" name="age" />
+        <input type="submit" name="button" value="提交" />
+    </form>
+</div>
+<hr />
+<div>
+    <span>by domian model</span>
+    <form action="/home/getvaluefromformbymodel" method="post">
+        <span>username:</span>
+        <input type="text" name="username" />
+        <span>age:</span>
+        <input type="text" name="age" />
+        <input type="submit" name="button" value="提交" />
+    </form>
+</div>
+<hr />
+<div>
+    <span>by parameter</span>
+    <form action="/home/getvaluebyparam" method="post">
+        <span>username:</span>
+        <input type="text" name="username" />
+        <span>age:</span>
+        <input type="text" name="age" />
+        <input type="submit" name="button" value="提交" />
+    </form>
+</div>
+<hr />
+<div>
+    <span>by cookie</span>
+    <button id="btnck">submit</button>
+</div>
+
+<hr />
+<div>
+    <button id="btnsend">senddata</button>
+</div>
+<hr />
+<div>
+    <button id="btnaccess">accessdata</button>
+</div>
+<div>
+    <p id="message"></p>
+</div>
+<script>
+    $(function () {
+        $('#btn').click(function () {        
+            //url不区分大小写
+            window.location.href = "/home/getvaluebyquerystring?method=querystring";         
+        });   
+
+        $('#btn1').click(function () {
+            //url不区分大小写
+            window.location.href = "/home/getvaluebyroutedata?method=routedata";
+        });
+        $('#btn2').click(function () {
+            //url不区分大小写
+            window.location.href = "/home/getvaluebyroutedata2/100";
+        });
+        
+        $('#btnsend').click(function () {
+            $.ajax({
+                'type': 'post',
+                'url': '/home/getdata',
+                'data': { username: 'mcclane', age: '24' },
+                error: function (message) {
+                    alert('error!');
+                }
+            });            
+        });
+
+        $('#btnaccess').click(function () {
+            $.ajax({
+                'type': 'post',
+                'url': '/home/senddata',
+                success: function(data){
+                    $('#message').html('UserName:' + data.UserName + "<br/>Age" + data.Age); },
+                error: function (message) {
+                    alert('error!');
+                }
+            });
+        });
+    });
+
+    $(function () {
+        $.cookie('ckey', 'mcclane');
+        $('#btnck').click(function () {
+            window.location.href = "/home/getvaluebycookie";
+        });
+    });
+</script>
+
